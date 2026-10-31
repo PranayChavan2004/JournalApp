@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Console logging everywhere (what Docker / cloud platforms collect).
+     A rolling log file is written only in the dev profile.
+     Never log passwords, tokens or request bodies. -->
+<configuration>
+
+    <appender name="myConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <springProfile name="dev">
+        <appender name="myFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>logs/journalApp.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>logs/journalApp-%d{yy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>10MB</maxFileSize>
+                <maxHistory>10</maxHistory>
+            </rollingPolicy>
+            <encoder>
+                <pattern>%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+        <root level="INFO">
+            <appender-ref ref="myConsoleAppender"/>
+            <appender-ref ref="myFileAppender"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="!dev">
+        <root level="INFO">
+            <appender-ref ref="myConsoleAppender"/>
+        </root>
+    </springProfile>
+
+</configuration>

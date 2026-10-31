@@ -1,0 +1,130 @@
+server:
+  port: ${PORT:8080}
+  # Trust X-Forwarded-* headers from the hosting platform's proxy so that
+  # OAuth2 redirect URLs are built with https and the real host name.
+  forward-headers-strategy: framework
+  compression:
+    enabled: true
+  error:
+    whitelabel:
+      enabled: false
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+    include-exception: false
+
+spring:
+  application:
+    name: JournalApp
+
+# Pick the profile with SPRING_PROFILES_ACTIVE (dev | prod | test). Default: dev.
+#  profiles:
+#    active: ${SPRING_PROFILES_ACTIVE}
+
+  # ---- Database (MySQL) ----
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    open-in-view: false          # never run DB queries while rendering a response
+    hibernate:
+      ddl-auto: ${DDL_AUTO:update}
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  # ---- Redis ----
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      ssl:
+        enabled: ${REDIS_SSL:false}
+      timeout: 2s
+      connect-timeout: 2s
+
+  # ---- Mail (weekly mood e-mail) ----
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:${JAVA_EMAIL_PASSWORD:}}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  # ---- Kafka  ----
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: weekly-sentiment-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: com.projectbyPranayChavan.JournalApp.model
+    # For a cloud broker (Confluent etc.) add SASL settings through env vars, e.g.
+    #   SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
+    #   SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=PLAIN
+    #   SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username='..' password='..';
+
+  # ---- Google OAuth2 / OpenID Connect login ----
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:not-configured}
+            client-secret: ${GOOGLE_CLIENT_SECRET:not-configured}
+            scope: openid,profile,email
+
+# ---- JWT ----
+jwt:
+  secret: ${JWT_SECRET:}
+  expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
+  issuer: journal-app
+
+# ---- Application settings ----
+app:
+  cookie:
+    name: JOURNAL_TOKEN
+    secure: ${COOKIE_SECURE:true}
+  # Leave empty when the UI is served by this same app (default, recommended).
+  frontend-url: ${FRONTEND_URL:}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+  kafka:
+    enabled: ${KAFKA_ENABLED:false}
+  scheduler:
+    zone: ${SCHEDULER_ZONE:Asia/Kolkata}
+
+  # Optional: creates the first admin account on startup if it does not exist yet.
+  admin:
+    username: ${ADMIN_USERNAME:}
+    password: ${ADMIN_PASSWORD:}
+    email: ${ADMIN_EMAIL:}
+
+# ---- Weather (weatherstack.com) ----
+weather:
+  default-city: ${WEATHER_DEFAULT_CITY:Mumbai}
+  api:
+    key: ${WEATHER_API_KEY:}
+    url: "${WEATHER_API_URL:http://api.weatherstack.com/current?access_key=<apiKey>&query=<city>}"
+
+springdoc:
+  swagger-ui:
+    enabled: ${SWAGGER_ENABLED:true}
+  api-docs:
+    enabled: ${SWAGGER_ENABLED:true}

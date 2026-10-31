@@ -1,0 +1,8 @@
+app:
+  cookie:
+    secure: ${COOKIE_SECURE:true}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: WARN

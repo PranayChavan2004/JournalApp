@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Journal</title>
+  <meta name="description" content="A private journal that shows how you have been feeling.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/app.css">
+  <script type="module" src="/js/app.js"></script>
+</head>
+<body>
+
+<noscript><p class="noscript">Journal needs JavaScript to run. Please turn it on and reload.</p></noscript>
+
+<!-- ============================ SIGNED OUT ============================ -->
+<div id="auth-view" class="auth" hidden>
+  <aside class="auth-aside">
+    <div class="brand brand-light">
+      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="14" width="4" height="13" rx="2" class="b-happy"/><rect x="11" y="8" width="4" height="19" rx="2" class="b-sad"/><rect x="17" y="11" width="4" height="16" rx="2" class="b-angry"/><rect x="23" y="16" width="4" height="11" rx="2" class="b-anxious"/></svg>
+      <span>Journal</span>
+    </div>
+    <div class="auth-pitch">
+      <h1>Your days, in your own words.</h1>
+      <p>Write an entry, pick how it felt, and watch the pattern of your month take shape.</p>
+    </div>
+    <div id="auth-ribbon" class="ribbon ribbon-aside" aria-hidden="true"></div>
+  </aside>
+
+  <main class="auth-main">
+    <div class="auth-card">
+      <div class="tabs" role="tablist" aria-label="Account">
+        <button type="button" role="tab" id="tab-login" aria-selected="true" aria-controls="login-form" class="tab">Sign in</button>
+        <button type="button" role="tab" id="tab-signup" aria-selected="false" aria-controls="signup-form" class="tab" tabindex="-1">Create account</button>
+      </div>
+
+      <p id="auth-message" class="notice" role="alert" hidden></p>
+
+      <form id="login-form" role="tabpanel" aria-labelledby="tab-login" novalidate>
+        <label class="field">
+          <span>Username or e-mail</span>
+          <input name="username" type="text" autocomplete="username" required maxlength="254">
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input name="password" type="password" autocomplete="current-password" required maxlength="72">
+        </label>
+        <p class="form-error" role="alert"></p>
+        <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+      </form>
+
+      <form id="signup-form" role="tabpanel" aria-labelledby="tab-signup" novalidate hidden>
+        <label class="field">
+          <span>Username</span>
+          <input name="userName" type="text" autocomplete="username" required minlength="3" maxlength="30" pattern="[A-Za-z0-9_.\-]+">
+          <small>3 to 30 letters, numbers, dots, dashes or underscores.</small>
+        </label>
+        <label class="field">
+          <span>E-mail <em>(optional)</em></span>
+          <input name="email" type="email" autocomplete="email" maxlength="254">
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input name="password" type="password" autocomplete="new-password" required minlength="8" maxlength="72">
+          <small>At least 8 characters.</small>
+        </label>
+        <label class="check">
+          <input name="sentimentAnalysis" type="checkbox">
+          <span>E-mail me a mood summary every Sunday</span>
+        </label>
+        <p class="form-error" role="alert"></p>
+        <button class="btn btn-primary btn-block" type="submit">Create account</button>
+      </form>
+
+      <div id="oauth-block" hidden>
+        <div class="divider"><span>or</span></div>
+        <a id="google-btn" class="btn btn-secondary btn-block" href="/oauth2/authorization/google">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#4285F4" d="M23 12.27c0-.82-.07-1.6-.21-2.35H12v4.45h6.17a5.27 5.27 0 0 1-2.29 3.46v2.87h3.7C21.74 18.7 23 15.76 23 12.27Z"/><path fill="#34A853" d="M12 23.5c3.1 0 5.7-1.03 7.6-2.78l-3.7-2.87c-1.03.69-2.35 1.1-3.9 1.1-3 0-5.54-2.03-6.45-4.75H1.74v2.97A11.5 11.5 0 0 0 12 23.5Z"/><path fill="#FBBC05" d="M5.55 14.2a6.9 6.9 0 0 1 0-4.4V6.83H1.74a11.5 11.5 0 0 0 0 10.34l3.81-2.97Z"/><path fill="#EA4335" d="M12 5.55c1.69 0 3.2.58 4.4 1.72l3.28-3.28C17.7 2.14 15.1 1 12 1A11.5 11.5 0 0 0 1.74 6.83L5.55 9.8C6.46 7.08 9 5.55 12 5.55Z"/></svg>
+          Continue with Google
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============================ SIGNED IN ============================ -->
+<div id="app-view" hidden>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#/" aria-label="Journal home">
+        <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="14" width="4" height="13" rx="2" class="b-happy"/><rect x="11" y="8" width="4" height="19" rx="2" class="b-sad"/><rect x="17" y="11" width="4" height="16" rx="2" class="b-angry"/><rect x="23" y="16" width="4" height="11" rx="2" class="b-anxious"/></svg>
+        <span>Journal</span>
+      </a>
+      <nav class="nav" aria-label="Main">
+        <a href="#/" data-route="/">Journal</a>
+        <a href="#/account" data-route="/account">Account</a>
+        <a href="#/admin" data-route="/admin" id="nav-admin" hidden>Admin</a>
+      </nav>
+      <button type="button" id="logout-btn" class="btn btn-ghost">Sign out</button>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- ---------- Journal ---------- -->
+    <section id="view-journal" hidden aria-labelledby="greeting">
+      <div class="hello">
+        <h1 id="greeting"></h1>
+        <p id="weather-line" class="muted" hidden></p>
+      </div>
+
+      <div class="ribbon-wrap">
+        <div class="ribbon-head">
+          <h2>The last 30 days</h2>
+          <ul class="legend" aria-label="Mood colours">
+            <li><i class="dot m-HAPPY"></i>Happy</li>
+            <li><i class="dot m-SAD"></i>Sad</li>
+            <li><i class="dot m-ANGRY"></i>Angry</li>
+            <li><i class="dot m-ANXIOUS"></i>Anxious</li>
+          </ul>
+        </div>
+        <div id="ribbon" class="ribbon" role="img"></div>
+      </div>
+
+      <form id="composer" class="composer" novalidate>
+        <h2 class="sr-only">New entry</h2>
+        <label class="sr-only" for="c-title">Title</label>
+        <input id="c-title" name="title" class="composer-title" type="text" placeholder="Give today a title" maxlength="150" required autocomplete="off">
+        <label class="sr-only" for="c-content">Entry</label>
+        <textarea id="c-content" name="content" class="composer-text" rows="5" placeholder="What happened? How did it feel?" maxlength="10000"></textarea>
+        <div class="composer-foot">
+          <fieldset class="moods">
+            <legend>How did it feel?</legend>
+            <label class="mood-chip m-NONE"><input type="radio" name="mood" value="" checked><span><i class="dot"></i>No mood</span></label>
+            <label class="mood-chip m-HAPPY"><input type="radio" name="mood" value="HAPPY"><span><i class="dot"></i>Happy</span></label>
+            <label class="mood-chip m-SAD"><input type="radio" name="mood" value="SAD"><span><i class="dot"></i>Sad</span></label>
+            <label class="mood-chip m-ANGRY"><input type="radio" name="mood" value="ANGRY"><span><i class="dot"></i>Angry</span></label>
+            <label class="mood-chip m-ANXIOUS"><input type="radio" name="mood" value="ANXIOUS"><span><i class="dot"></i>Anxious</span></label>
+          </fieldset>
+          <button class="btn btn-primary" type="submit">Save entry</button>
+        </div>
+        <p class="form-error" role="alert"></p>
+      </form>
+
+      <div class="toolbar">
+        <label class="search">
+          <span class="sr-only">Search entries</span>
+          <input id="search" type="search" placeholder="Search your entries" autocomplete="off">
+        </label>
+        <div class="filters" role="group" aria-label="Filter by mood">
+          <button type="button" class="chip" data-mood="ALL" aria-pressed="true">All</button>
+          <button type="button" class="chip m-HAPPY" data-mood="HAPPY" aria-pressed="false"><i class="dot"></i>Happy</button>
+          <button type="button" class="chip m-SAD" data-mood="SAD" aria-pressed="false"><i class="dot"></i>Sad</button>
+          <button type="button" class="chip m-ANGRY" data-mood="ANGRY" aria-pressed="false"><i class="dot"></i>Angry</button>
+          <button type="button" class="chip m-ANXIOUS" data-mood="ANXIOUS" aria-pressed="false"><i class="dot"></i>Anxious</button>
+        </div>
+      </div>
+
+      <div id="entries" class="entries" aria-live="polite"></div>
+    </section>
+
+    <!-- ---------- Account ---------- -->
+    <section id="view-account" hidden aria-labelledby="account-title">
+      <h1 id="account-title">Account</h1>
+
+      <div class="panel">
+        <h2>Profile</h2>
+        <dl class="facts">
+          <div><dt>Username</dt><dd id="acc-username"></dd></div>
+          <div><dt>Signs in with</dt><dd id="acc-provider"></dd></div>
+        </dl>
+      </div>
+
+      <form id="prefs-form" class="panel" novalidate>
+        <h2>Weekly mood summary</h2>
+        <p class="muted">Every Sunday we e-mail you the mood you wrote about most that week.</p>
+        <label class="field">
+          <span>E-mail</span>
+          <input name="email" type="email" autocomplete="email" maxlength="254">
+        </label>
+        <label class="check">
+          <input name="sentimentAnalysis" type="checkbox">
+          <span>Send me the weekly summary</span>
+        </label>
+        <p class="form-error" role="alert"></p>
+        <button class="btn btn-primary" type="submit">Save preferences</button>
+      </form>
+
+      <form id="city-form" class="panel" novalidate>
+        <h2>Weather greeting</h2>
+        <p class="muted">The city shown under your greeting. Stored in this browser only.</p>
+        <label class="field">
+          <span>City</span>
+          <input name="city" type="text" maxlength="60" autocomplete="off">
+        </label>
+        <p class="form-error" role="alert"></p>
+        <button class="btn btn-primary" type="submit">Save city</button>
+      </form>
+
+      <form id="password-form" class="panel" novalidate>
+        <h2>Change password</h2>
+        <label class="field">
+          <span>Current password</span>
+          <input name="currentPassword" type="password" autocomplete="current-password" maxlength="72" required>
+        </label>
+        <label class="field">
+          <span>New password</span>
+          <input name="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="72" required>
+          <small>At least 8 characters. Other devices are signed out when you change it.</small>
+        </label>
+        <p class="form-error" role="alert"></p>
+        <button class="btn btn-primary" type="submit">Change password</button>
+      </form>
+
+      <form id="delete-form" class="panel panel-danger" novalidate>
+        <h2>Delete account</h2>
+        <p class="muted">This permanently deletes your account and every entry. It cannot be undone.</p>
+        <label class="field">
+          <span>Type DELETE to confirm</span>
+          <input name="confirm" type="text" autocomplete="off">
+        </label>
+        <p class="form-error" role="alert"></p>
+        <button class="btn btn-danger" type="submit" disabled>Delete my account</button>
+      </form>
+    </section>
+
+    <!-- ---------- Admin ---------- -->
+    <section id="view-admin" hidden aria-labelledby="admin-title">
+      <h1 id="admin-title">Users</h1>
+      <p class="muted" id="admin-count"></p>
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">All registered users</caption>
+          <thead><tr><th scope="col">Username</th><th scope="col">E-mail</th><th scope="col">Roles</th><th scope="col">Signs in with</th></tr></thead>
+          <tbody id="admin-rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============================ DIALOGS ============================ -->
+<dialog id="edit-dlg" aria-labelledby="edit-title">
+  <form id="edit-form" novalidate>
+    <h2 id="edit-title">Edit entry</h2>
+    <label class="field">
+      <span>Title</span>
+      <input name="title" type="text" maxlength="150" required autocomplete="off">
+    </label>
+    <label class="field">
+      <span>Entry</span>
+      <textarea name="content" rows="8" maxlength="10000"></textarea>
+    </label>
+    <fieldset class="moods">
+      <legend>How did it feel?</legend>
+      <label class="mood-chip m-NONE"><input type="radio" name="mood" value=""><span><i class="dot"></i>No mood</span></label>
+      <label class="mood-chip m-HAPPY"><input type="radio" name="mood" value="HAPPY"><span><i class="dot"></i>Happy</span></label>
+      <label class="mood-chip m-SAD"><input type="radio" name="mood" value="SAD"><span><i class="dot"></i>Sad</span></label>
+      <label class="mood-chip m-ANGRY"><input type="radio" name="mood" value="ANGRY"><span><i class="dot"></i>Angry</span></label>
+      <label class="mood-chip m-ANXIOUS"><input type="radio" name="mood" value="ANXIOUS"><span><i class="dot"></i>Anxious</span></label>
+    </fieldset>
+    <p class="form-error" role="alert"></p>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-secondary" id="edit-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save changes</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="confirm-dlg" aria-labelledby="confirm-title">
+  <form method="dialog">
+    <h2 id="confirm-title"></h2>
+    <p id="confirm-text" class="muted"></p>
+    <div class="dlg-actions">
+      <button value="cancel" class="btn btn-secondary" id="confirm-cancel"></button>
+      <button value="ok" class="btn btn-danger" id="confirm-ok"></button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+</body>
+</html>
